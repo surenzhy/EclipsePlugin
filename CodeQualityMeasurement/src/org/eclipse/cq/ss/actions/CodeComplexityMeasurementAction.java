@@ -127,7 +127,7 @@ public class CodeComplexityMeasurementAction implements
 		resizeModeComboBox.addItemListener(itemListener);
 
 		JFrame frame = new JFrame("Code Complexity");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.add(resizeModeComboBox, BorderLayout.NORTH);
 		frame.add(scrollPane, BorderLayout.CENTER);
