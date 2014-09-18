@@ -1,13 +1,39 @@
 package org.eclipse.cq.ss.actions;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
 import javancss.Javancss;
 
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.cq.ss.beans.Function;
+import org.eclipse.cq.ss.beans.Functions;
+import org.eclipse.cq.ss.beans.JavancssResultBean;
+import org.eclipse.cq.ss.ui.SortableTableModel;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -47,28 +73,164 @@ public class CodeComplexityMeasurementAction implements
 			IWorkbenchWindow window = PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow();
 			if (window != null) {
-				IWorkbenchPage activePage = window == null ? null : window
-						.getActivePage();
+				String outFilePath = runCCNStats(window);
 
-				IEditorPart editor = activePage == null ? null : activePage
-						.getActiveEditor();
-				IEditorInput input = editor == null ? null : editor
-						.getEditorInput();
-				IPath path = input instanceof FileEditorInput ? ((FileEditorInput) input)
-						.getPath() : null;
-				String outFilePath = path.toOSString() + ".xml";	
-				System.out.println(outFilePath);
-				String[] asArgs = new String[] {"-ncss","-xml", "-function",
-						"-out", outFilePath, "-recursive", path.toString() };
-				Javancss pJavancss = new Javancss(asArgs);
+				JavancssResultBean resultBean = generateCCNReport(outFilePath);
+
+				createTableViewForCCNResult(resultBean);
+
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void createTableViewForCCNResult(JavancssResultBean resultBean) {
+		String[] columnNames = { "No.", "Method Name", "CCN", "NCSS",
+				"Javadoc" };
+
+		final JTable table = new JTable(getTableModel(resultBean,
+				columnNames));
+		table.getTableHeader()
+				.setFont(new Font("Arial", Font.BOLD, 15));
+		((DefaultTableCellRenderer) table.getTableHeader()
+				.getDefaultRenderer())
+				.setHorizontalAlignment(JLabel.LEFT);
+		resizeColumnWidth(table);
+		table.setAutoCreateRowSorter(true);
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		table.setFillsViewportHeight(true);
+
+		String modes[] = { "Resize All Columns", "Resize Last Column",
+				"Resize Next Column", "Resize Off",
+				"Resize Subsequent Columns" };
+
+		final int modeKey[] = { JTable.AUTO_RESIZE_ALL_COLUMNS,
+				JTable.AUTO_RESIZE_LAST_COLUMN,
+				JTable.AUTO_RESIZE_NEXT_COLUMN, JTable.AUTO_RESIZE_OFF,
+				JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS };
+
+		JComboBox resizeModeComboBox = new JComboBox(modes);
+
+		ItemListener itemListener = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				JComboBox source = (JComboBox) e.getSource();
+				int index = source.getSelectedIndex();
+				table.setAutoResizeMode(modeKey[index]);
+			}
+		};
+		resizeModeComboBox.addItemListener(itemListener);
+
+		JFrame frame = new JFrame("Code Complexity");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		frame.add(resizeModeComboBox, BorderLayout.NORTH);
+		frame.add(scrollPane, BorderLayout.CENTER);
+		frame.pack();
+		frame.setAlwaysOnTop(true);
+		frame.setVisible(true);
+	}
+
+	private JavancssResultBean generateCCNReport(String outFilePath)
+			throws FileNotFoundException, JAXBException {
+		InputStream ins = new FileInputStream(new File(outFilePath));
+		JAXBContext jaxbContext = JAXBContext
+				.newInstance(JavancssResultBean.class);
+
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		JavancssResultBean resultBean = (JavancssResultBean) jaxbUnmarshaller
+				.unmarshal(ins);
+		return resultBean;
+	}
+
+	private String runCCNStats(IWorkbenchWindow window) throws IOException {
+		IWorkbenchPage activePage = window == null ? null : window
+				.getActivePage();
+
+		IEditorPart editor = activePage == null ? null : activePage
+				.getActiveEditor();
+		IEditorInput input = editor == null ? null : editor.getEditorInput();
+		IPath path = input instanceof FileEditorInput ? ((FileEditorInput) input)
+				.getPath() : null;
+		String outFilePath = path.toOSString() + ".xml";
+		System.out.println(outFilePath);
+		String[] asArgs = new String[] { "-ncss", "-xml", "-function", "-out",
+				outFilePath, "-recursive", path.toString() };
+		Javancss pJavancss = new Javancss(asArgs);
+		return outFilePath;
+	}
+
+	public TableModel getTableModel(JavancssResultBean resultBean,
+			String[] columnNames) {
+		SortableTableModel dm = new SortableTableModel() {
+			public Class getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Integer.class;
+				case 1:
+					return String.class;
+				case 2:
+					return Integer.class;
+				case 3:
+					return Integer.class;
+				case 4:
+					return Integer.class;
+				default:
+					return Object.class;
+				}
+			}
+
+			public boolean isCellEditable(int row, int col) {
+
+				return false;
+			}
+
+			public void setValueAt(Object obj, int row, int col) {
+
+			}
+		};
+		dm.setDataVector(getTableData(resultBean), columnNames);
+		return dm;
+	}
+
+	private void resizeColumnWidth(JTable table) {
+		final TableColumnModel columnModel = table.getColumnModel();
+		for (int column = 0; column < table.getColumnCount(); column++) {
+			int width = 50; // Min width
+			for (int row = 0; row < table.getRowCount(); row++) {
+				TableCellRenderer renderer = table.getCellRenderer(row, column);
+				Component comp = table.prepareRenderer(renderer, row, column);
+				width = Math.max(comp.getPreferredSize().width, width);
+			}
+			columnModel.getColumn(column).setPreferredWidth(width);
+		}
+	}
+
+	private Object[][] getTableData(JavancssResultBean resultBean) {
+		Object[][] data = null;
+		if (null != resultBean && resultBean.getFunctions() != null) {
+			Functions allFunctions = resultBean.getFunctions();
+			List<Function> allFunctionsList = allFunctions.getFunction();
+			int i = 0;
+			data = new Object[allFunctionsList.size()][5];
+			for (Iterator iterator = allFunctionsList.iterator(); iterator
+					.hasNext();) {
+				Function function = (Function) iterator.next();
+				data[i][0] = i + 1;
+				data[i][1] = function.getName();
+				data[i][2] = Integer.parseInt(function.getCcn());
+				data[i][3] = Integer.parseInt(function.getNcss());
+				data[i][4] = Integer.parseInt(function.getJavadocs());
+				i++;
+			}
 		}
 
-		MessageDialog.openInformation(window.getShell(),
-				"CodeQualityMeasurement", "Hello, Eclipse world");
+		return data;
 	}
 
 	/**
