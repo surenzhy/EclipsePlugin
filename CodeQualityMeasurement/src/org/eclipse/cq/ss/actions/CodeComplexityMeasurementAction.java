@@ -75,9 +75,16 @@ public class CodeComplexityMeasurementAction implements
 			if (window != null) {
 				String outFilePath = runCCNStats(window);
 
-				JavancssResultBean resultBean = generateCCNReport(outFilePath);
+				if (outFilePath != null) {
+					File f = new File(outFilePath);
+					if (null != f && f.exists()) {
+						JavancssResultBean resultBean = generateCCNReport(outFilePath);
 
-				createTableViewForCCNResult(resultBean);
+						createTableViewForCCNResult(resultBean);
+
+						f.delete();
+					}
+				}
 
 			}
 		} catch (IOException e) {
@@ -90,15 +97,11 @@ public class CodeComplexityMeasurementAction implements
 	}
 
 	private void createTableViewForCCNResult(JavancssResultBean resultBean) {
-		String[] columnNames = { "No.", "Method Name", "CCN", "NCSS",
-				"Javadoc" };
+		String[] columnNames = { "No.", "Method Name", "CCN", "NCSS", "Javadoc" };
 
-		final JTable table = new JTable(getTableModel(resultBean,
-				columnNames));
-		table.getTableHeader()
-				.setFont(new Font("Arial", Font.BOLD, 15));
-		((DefaultTableCellRenderer) table.getTableHeader()
-				.getDefaultRenderer())
+		final JTable table = new JTable(getTableModel(resultBean, columnNames));
+		table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 15));
+		((DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer())
 				.setHorizontalAlignment(JLabel.LEFT);
 		resizeColumnWidth(table);
 		table.setAutoCreateRowSorter(true);
@@ -107,13 +110,11 @@ public class CodeComplexityMeasurementAction implements
 		table.setFillsViewportHeight(true);
 
 		String modes[] = { "Resize All Columns", "Resize Last Column",
-				"Resize Next Column", "Resize Off",
-				"Resize Subsequent Columns" };
+				"Resize Next Column", "Resize Off", "Resize Subsequent Columns" };
 
 		final int modeKey[] = { JTable.AUTO_RESIZE_ALL_COLUMNS,
-				JTable.AUTO_RESIZE_LAST_COLUMN,
-				JTable.AUTO_RESIZE_NEXT_COLUMN, JTable.AUTO_RESIZE_OFF,
-				JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS };
+				JTable.AUTO_RESIZE_LAST_COLUMN, JTable.AUTO_RESIZE_NEXT_COLUMN,
+				JTable.AUTO_RESIZE_OFF, JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS };
 
 		JComboBox resizeModeComboBox = new JComboBox(modes);
 
@@ -127,7 +128,7 @@ public class CodeComplexityMeasurementAction implements
 		resizeModeComboBox.addItemListener(itemListener);
 
 		JFrame frame = new JFrame("Code Complexity");
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.add(resizeModeComboBox, BorderLayout.NORTH);
 		frame.add(scrollPane, BorderLayout.CENTER);
