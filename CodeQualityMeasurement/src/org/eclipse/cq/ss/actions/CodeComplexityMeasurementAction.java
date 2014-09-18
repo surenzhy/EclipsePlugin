@@ -138,7 +138,7 @@ public class CodeComplexityMeasurementAction implements
 	}
 
 	private JavancssResultBean generateCCNReport(String outFilePath)
-			throws FileNotFoundException, JAXBException {
+			throws JAXBException, IOException {
 		InputStream ins = new FileInputStream(new File(outFilePath));
 		JAXBContext jaxbContext = JAXBContext
 				.newInstance(JavancssResultBean.class);
@@ -146,6 +146,7 @@ public class CodeComplexityMeasurementAction implements
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		JavancssResultBean resultBean = (JavancssResultBean) jaxbUnmarshaller
 				.unmarshal(ins);
+		ins.close();
 		return resultBean;
 	}
 
