@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Code Quality Action Set"
+            visible="true"
+            id="CodeQualityMeasurement.actionSet">
+         <menu
+               label="Code Quality"
+               id="codeQualityMenu">
+            <separator
+                  name="codeQualityGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Code Complexity"
+               icon="icons/sample.gif"
+               class="org.eclipse.cq.ss.actions.CodeComplexityMeasurementAction"
+               tooltip="Hello, Eclipse world"
+               menubarPath="codeQualityMenu/codeQualityGroup"
+               toolbarPath="codeQualityGroup"
+               id="org.eclipse.cq.ss.actions.CodeComplexityMeasurementAction">
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>

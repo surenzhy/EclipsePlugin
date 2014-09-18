@@ -1,0 +1,14 @@
+# 17/9/14 11:46:59 PM IST
+# Eclipse Compiler for Java(TM) v20140604-1726, 3.10.0, Copyright IBM Corp 2000, 2013. All rights reserved.
+----------
+1. WARNING in E:\EclipsePlugin\CodeQualityMeasurement\src\org\eclipse\cq\ss\actions\CodeComplexityMeasurementAction.java (at line 3)
+	import java.io.File;
+	       ^^^^^^^^^^^^
+The import java.io.File is never used
+----------
+2. WARNING in E:\EclipsePlugin\CodeQualityMeasurement\src\org\eclipse\cq\ss\actions\CodeComplexityMeasurementAction.java (at line 63)
+	Javancss pJavancss = new Javancss(asArgs);
+	         ^^^^^^^^^
+The value of the local variable pJavancss is not used
+----------
+2 problems (2 warnings)
