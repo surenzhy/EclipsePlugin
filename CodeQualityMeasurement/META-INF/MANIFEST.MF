@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: CodeQualityMeasurement
-Bundle-SymbolicName: CodeQualityMeasurement;singleton:=true
+Bundle-Name: org.eclipse.cq.ss.codequalitymeasurement
+Bundle-SymbolicName: org.eclipse.cq.ss.codequalitymeasurement;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.cq.ss.CodeQualityMeasurementActivator
 Require-Bundle: org.eclipse.ui,

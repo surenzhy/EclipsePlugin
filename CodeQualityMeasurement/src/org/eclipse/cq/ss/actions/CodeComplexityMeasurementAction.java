@@ -166,7 +166,7 @@ public class CodeComplexityMeasurementAction implements
 				.getPath() : null;
 
 		String outFilePath = null;
-		if (null != path) {
+		if (null != path && path.toString().endsWith("java")) {
 			outFilePath = path.toOSString() + ".xml";
 			String[] asArgs = new String[] { "-ncss", "-xml", "-function",
 					"-out", outFilePath, "-recursive", path.toString() };
