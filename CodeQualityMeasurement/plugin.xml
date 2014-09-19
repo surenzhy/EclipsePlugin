@@ -17,9 +17,9 @@
          </menu>
          <action
                label="&amp;Code Complexity"
-               icon="icons/sample.gif"
+               icon="icons/sample.png"
                class="org.eclipse.cq.ss.actions.CodeComplexityMeasurementAction"
-               tooltip="Hello, Eclipse world"
+               tooltip="Code Complexity (CCN)"
                menubarPath="codeQualityMenu/codeQualityGroup"
                toolbarPath="codeQualityGroup"
                id="org.eclipse.cq.ss.actions.CodeComplexityMeasurementAction">
