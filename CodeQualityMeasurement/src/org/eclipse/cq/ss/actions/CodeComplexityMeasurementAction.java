@@ -232,7 +232,7 @@ public class CodeComplexityMeasurementAction implements
 					.hasNext();) {
 				Function function = (Function) iterator.next();
 				data[i][0] = i + 1;
-				data[i][1] = function.getName();
+				data[i][1] = getFunctionName(function.getName());
 				data[i][2] = Integer.parseInt(function.getCcn());
 				data[i][3] = Integer.parseInt(function.getNcss());
 				data[i][4] = Integer.parseInt(function.getJavadocs());
@@ -241,6 +241,13 @@ public class CodeComplexityMeasurementAction implements
 		}
 
 		return data;
+	}
+
+	private String getFunctionName(String name) {
+		if(null != name){
+			return name.substring(name.lastIndexOf(".") + 1, name.length());
+		}
+		return "";
 	}
 
 	/**
