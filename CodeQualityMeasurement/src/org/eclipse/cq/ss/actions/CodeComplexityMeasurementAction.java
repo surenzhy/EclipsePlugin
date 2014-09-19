@@ -7,7 +7,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -34,6 +33,7 @@ import org.eclipse.cq.ss.beans.Functions;
 import org.eclipse.cq.ss.beans.JavancssResultBean;
 import org.eclipse.cq.ss.ui.SortableTableModel;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -84,6 +84,11 @@ public class CodeComplexityMeasurementAction implements
 
 						f.delete();
 					}
+				} else {
+					MessageDialog
+							.openInformation(window.getShell(),
+									"Not Java Files Opened",
+									"Please open a java file to measure code complexity!!");
 				}
 
 			}
@@ -159,11 +164,14 @@ public class CodeComplexityMeasurementAction implements
 		IEditorInput input = editor == null ? null : editor.getEditorInput();
 		IPath path = input instanceof FileEditorInput ? ((FileEditorInput) input)
 				.getPath() : null;
-		String outFilePath = path.toOSString() + ".xml";
-		System.out.println(outFilePath);
-		String[] asArgs = new String[] { "-ncss", "-xml", "-function", "-out",
-				outFilePath, "-recursive", path.toString() };
-		Javancss pJavancss = new Javancss(asArgs);
+
+		String outFilePath = null;
+		if (null != path) {
+			outFilePath = path.toOSString() + ".xml";
+			String[] asArgs = new String[] { "-ncss", "-xml", "-function",
+					"-out", outFilePath, "-recursive", path.toString() };
+			Javancss pJavancss = new Javancss(asArgs);
+		}
 		return outFilePath;
 	}
 
